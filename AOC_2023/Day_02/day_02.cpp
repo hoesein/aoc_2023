@@ -117,7 +117,7 @@ int part_two()
         COUNT
     };
 
-    std::array<int, COUNT> max_color_count = {12, 13, 14};
+    std::array<int, COUNT> max_color_count = {0, 0, 0};
 
     std::vector<std::string> lines = read_file("input.txt");
     if (lines.empty())
@@ -173,17 +173,23 @@ int part_two()
                 break;
             }
 
-            if (current_color_count > max_color_count[c])
-            {
-                possiable_game = false;
-                break;
-            }
-
+            max_color_count[c] = std::max(max_color_count[c], current_color_count);
             current_color_count = 0;
-            possiable_game = true;
+
+            // if (current_color_count > max_color_count[c])
+            // {
+            //     possiable_game = false;
+            //     break;
+            // }
+
+            // current_color_count = 0;
+            // possiable_game = true;
         }
-        if (possiable_game)
-            result.push_back(game_id);
+
+        // if (possiable_game)
+        //     result.push_back(game_id);
+        result.push_back(max_color_count[RED] * max_color_count[GREEN] * max_color_count[BLUE]);
+        max_color_count = {0, 0, 0};
     }
 
     return std::accumulate(result.begin(), result.end(), 0);
