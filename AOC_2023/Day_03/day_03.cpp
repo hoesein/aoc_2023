@@ -8,7 +8,7 @@
 
 std::vector<std::string> read_file()
 {
-    std::ifstream input_file("D:\\Aung Hein Soe\\Danger\\C++\\AOC_2023\\AOC_2023\\Day_03\\input.txt");
+    std::ifstream input_file("input.txt");
     if (!input_file.is_open())
     {
         std::cerr << "Error opening file\n";

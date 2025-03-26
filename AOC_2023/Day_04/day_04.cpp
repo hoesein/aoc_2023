@@ -93,7 +93,7 @@ namespace tools
 
 std::vector<std::string> read_file()
 {
-    std::ifstream input_file("D:\\Aung Hein Soe\\Danger\\C++\\AOC_2023\\AOC_2023\\Day_04\\input.txt");
+    std::ifstream input_file("input.txt");
     if (!input_file.is_open())
     {
         std::cerr << "Error opening file\n";
@@ -120,20 +120,18 @@ int part_one()
     }
 
     std::vector<int> result;
-    std::vector<std::string> game_id;
+    std::vector<std::string> num_list;
     std::vector<int> win_num;
     std::vector<int> my_num;
 
     for (int i = 0; i < lines.size(); i++)
     {
-        game_id.push_back(tools::separator(lines[i], ":")[1]);
+        num_list.push_back(tools::separator(lines[i], ":")[1]);
 
-        for (int j = 0; j < game_id.size(); j++)
+        for (int j = 0; j < num_list.size(); j++)
         {
-            auto temp = tools::separator(game_id[j], "|");
-
-            win_num = tools::remove(temp[0], ' ');
-            my_num = tools::remove(temp[1], ' ');
+            win_num = tools::remove(tools::separator(num_list[j], "|")[0], ' ');
+            my_num = tools::remove(tools::separator(num_list[j], "|")[1], ' ');
 
             int win_count = 0;
             for (int my : my_num)
@@ -149,15 +147,56 @@ int part_one()
 
             result.push_back(pow(2, win_count - 1));
         }
-        game_id.clear();
+        num_list.clear();
     }
 
     return std::accumulate(result.begin(), result.end(), 0);
 }
 
-std::string part_two()
+int part_two()
 {
-    return "0";
+    std::vector<std::string> lines = read_file();
+
+    if (lines.empty())
+    {
+        std::cerr << "No data on file." << std::endl;
+    }
+
+    std::vector<std::string> num_list;
+    std::vector<int> win_num;
+    std::vector<int> my_num;
+
+    std::vector<int> cards;
+    for (int _ = 0; _ < lines.size(); _++)
+        cards.push_back(1);
+
+    for (int i = 0; i < lines.size(); i++)
+    {
+        num_list.push_back(tools::separator(lines[i], ":")[1]);
+
+        for (int j = 0; j < num_list.size(); j++)
+        {
+            win_num = tools::remove(tools::separator(num_list[j], "|")[0], ' ');
+            my_num = tools::remove(tools::separator(num_list[j], "|")[1], ' ');
+
+            int win_count = 0;
+            for (int my : my_num)
+            {
+                if (std::find(win_num.begin(), win_num.end(), my) != win_num.end())
+                {
+                    win_count += 1;
+                }
+            }
+
+            for (int z = i + 1; z < i + 1 + win_count; z++)
+            {
+                cards[z] += cards[i];
+            }
+        }
+        num_list.clear();
+    }
+
+    return std::accumulate(cards.begin(), cards.end(), 0);
 }
 
 int main()
@@ -170,7 +209,7 @@ int main()
     auto start = high_resolution_clock::now();
 
     int p1 = part_one();
-    std::string p2 = part_two();
+    int p2 = part_two();
 
     std::cout << "Part One: " << p1 << std::endl;
     std::cout << "Part Two: " << p2 << std::endl;
