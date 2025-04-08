@@ -68,6 +68,12 @@ namespace tools
     T convert(const std::string &str);
 
     template <>
+    std::string convert<std::string>(const std::string &str)
+    {
+        return str;
+    }
+
+    template <>
     int convert<int>(const std::string &str)
     {
         return std::stoi(str);
