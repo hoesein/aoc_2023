@@ -130,8 +130,7 @@ bool one_pairs(const std::vector<char> &h)
     return pair_count == 1;
 }
 
-bool high(const std::vector<char> &h)
-{
+bool high(const std::vector<char> &h) {
     std::map<char, int> f;
     for (int i = 0; i < h.size(); i++)
     {
@@ -198,6 +197,13 @@ struct Hand
             return false;
         }
     }
+
+    friend std::ostream& operator<<(std::ostream &os, const Hand &hand)
+    {
+        std::string str(hand.hand.begin(), hand.hand.end());
+        os << "Hand: " << str << " | Bet: " << hand.bid;
+        return os;
+    }
 };
 
 std::vector<std::string> read_file()
@@ -259,6 +265,7 @@ std::string part_one()
     {
         Hand h = hands[i];
         result += h.bid * (i + 1);
+        std::cout << hands[i] << std::endl;
     }
 
     return std::to_string(result);

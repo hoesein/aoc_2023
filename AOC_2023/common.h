@@ -5,6 +5,7 @@
 #include <fstream>
 #include <chrono>
 #include <map>
+#include <algorithm>
 
 namespace tools
 {
