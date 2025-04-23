@@ -121,4 +121,24 @@ namespace tools
 
         return tokens;
     }
+
+    inline void rtrim(std::string &str)
+    {
+        str.erase(str.begin(), std::find_if(str.begin(), str.end(), [](unsigned char ch)
+                                            { return !std::isspace(ch) && ch != '(' && ch != ')'; }));
+    }
+
+    inline void ltrim(std::string &str)
+    {
+        str.erase(std::find_if(str.rbegin(), str.rend(), [](unsigned char ch)
+                               { return !std::isspace(ch) && ch != '(' && ch != ')'; })
+                      .base(),
+                  str.end());
+    }
+
+    inline void trim(std::string &str)
+    {
+        rtrim(str);
+        ltrim(str);
+    }
 }
