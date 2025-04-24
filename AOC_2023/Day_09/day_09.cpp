@@ -2,7 +2,7 @@
 
 std::vector<std::string> read_file()
 {
-    std::ifstream input_file("D:\\Aung Hein Soe\\Danger\\C++\\AOC_2023\\AOC_2023\\Day_09\\input.txt");
+    std::ifstream input_file("test.txt");
     if (!input_file.is_open())
     {
         std::cerr << "Error opening file\n";
@@ -25,6 +25,7 @@ std::string part_one()
     if (lines.empty())
     {
         std::cerr << "No Data found." << std::endl;
+        return 0;
     }
 
     int result = 0;
@@ -33,30 +34,29 @@ std::string part_one()
         std::vector<int> current_row = tools::remove<int>(lines[i], ' ');
         
         // create diff map for current row
-        std::vector<std::vector<int>> diff_row;
-        diff_row.push_back(current_row);
-        int curr_lst = 0;
+        std::vector<std::vector<int>> diff_row = {current_row};
 
-        while (true)
+        while (!std::all_of(diff_row.back().begin(), diff_row.back().end(),
+                            [](int num) { return num == 0; }))
         {
-            std::vector<int> current_list;
-            for (size_t j = 0; j < diff_row[curr_lst].size() - 1; j++)
+            const auto& last_diff = diff_row.back();
+            std::vector<int> new_diff;
+
+            for (size_t j = 0; j < last_diff.size() - 1; j++)
             {
-                int diff = diff_row[curr_lst][j + 1] - diff_row[curr_lst][j];
-                current_list.push_back(diff);
+                int diff = last_diff[j + 1] - last_diff[j];
+                new_diff.push_back(diff);
             }
 
-            diff_row.push_back(current_list);
-            curr_lst += 1;
-
-            if (std::accumulate(current_list.begin(), current_list.end(), 0) == 0)
-                break;
+            diff_row.push_back(new_diff);
         }
 
-        for(size_t k = 0; k < diff_row.size(); k++)
+        int extpo_value = 0;
+        for(auto it = diff_row.rbegin(); it != diff_row.rend(); it++)
         {
-            result += diff_row[k][diff_row[k].size() - 1]; 
+           extpo_value += it->back(); 
         }
+        result += extpo_value;
     }
     
     return std::to_string(result);
@@ -64,7 +64,45 @@ std::string part_one()
 
 std::string part_two()
 {
-    return "0";
+    std::vector<std::string> lines = read_file();
+    if (lines.empty())
+    {
+        std::cerr << "No Data found." << std::endl;
+        return 0;
+    }
+
+    int result = 0;
+    for(size_t i = 0; i < lines.size(); i++)
+    {
+        std::vector<int> current_row = tools::remove<int>(lines[i], ' ');
+        
+        // create diff map for current row
+        std::vector<std::vector<int>> diff_row = {current_row};
+
+        while (!std::all_of(diff_row.back().begin(), diff_row.back().end(),
+                            [](int num) { return num == 0; }))
+        {
+            const auto& last_diff = diff_row.back();
+            std::vector<int> new_diff;
+
+            for (size_t j = 0; j < last_diff.size() - 1; j++)
+            {
+                int diff = last_diff[j + 1] - last_diff[j];
+                new_diff.push_back(diff);
+            }
+
+            diff_row.push_back(new_diff);
+        }
+
+        int extpo_value = 0;
+        for(auto it = diff_row.rbegin(); it != diff_row.rend(); it++)
+        {
+            extpo_value = it->front() - extpo_value;
+        }
+        result += extpo_value;
+    }
+    
+    return std::to_string(result);
 }
 
 int main()
