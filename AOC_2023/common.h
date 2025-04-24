@@ -6,6 +6,7 @@
 #include <chrono>
 #include <map>
 #include <algorithm>
+#include <numeric>
 
 namespace tools
 {
