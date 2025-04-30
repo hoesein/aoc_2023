@@ -7,6 +7,8 @@
 #include <map>
 #include <algorithm>
 #include <numeric>
+#include <set>
+#include <queue>
 
 namespace tools
 {
