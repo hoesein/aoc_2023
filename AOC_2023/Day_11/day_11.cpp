@@ -2,7 +2,7 @@
 
 std::vector<std::string> read_file()
 {
-    std::ifstream input_file("D:\\Aung Hein Soe\\Danger\\C++\\AOC_2023\\AOC_2023\\Day_11\\input.txt");
+    std::ifstream input_file("test.txt");
     if (!input_file.is_open())
     {
         std::cerr << "Error opening file\n";
@@ -25,20 +25,26 @@ struct Galaxy
     int col;
 };
 
-int get_dist(const Galaxy& ga, const Galaxy& gb, const std::vector<bool>& rowIsEmpty, const std::vector<bool>& colIsEmpty)
+long long get_dist(const Galaxy& ga, const Galaxy& gb, const std::vector<bool>& rowIsEmpty, const std::vector<bool>& colIsEmpty, long long factor = 1)
 {
-    int dr = std::abs(ga.row - gb.row);
-    int dc = std::abs(ga.col - gb.col);
+    long long dr = std::abs(ga.row - gb.row);
+    long long dc = std::abs(ga.col - gb.col);
 
-    int dist = dr + dc;
+    long long dist = dr + dc;
     for(int i = std::min(ga.row, gb.row) + 1; i < std::max(ga.row, gb.row); i++)
     {
-        dist += rowIsEmpty[i] ? 1 : 0;
+        if(rowIsEmpty[i])
+        {
+            dist += (factor - 1); 
+        }
     }
     
     for(int j = std::min(ga.col, gb.col) + 1; j < std::max(ga.col, gb.col); j++)
     {
-        dist += colIsEmpty[j] ? 1 : 0;
+        if(colIsEmpty[j])
+        {
+            dist += (factor - 1);
+        }
     }
     return dist;
 }
@@ -72,7 +78,7 @@ std::string part_one()
         }
     }
 
-    size_t ans = 0;
+    long long ans = 0;
     for(size_t rIdx = 0; rIdx < galaxies.size(); rIdx++)
     {
         for(size_t cIdx = rIdx + 1; cIdx < galaxies.size(); cIdx++)
@@ -80,7 +86,7 @@ std::string part_one()
             const auto& ga = galaxies[rIdx];
             const auto& gb = galaxies[cIdx];
 
-            int dist = get_dist(ga, gb, rowIsEmpty, colIsEmpty);
+            long long dist = get_dist(ga, gb, rowIsEmpty, colIsEmpty);
 
             ans += dist;
         }
@@ -91,7 +97,49 @@ std::string part_one()
 
 std::string part_two()
 {
-    return "0";
+    std::vector<std::string> lines = read_file();
+    if(lines.empty())
+    {
+        std::cout << "No data found." << std::endl;
+        return 0;
+    }
+    
+    std::vector<bool> rowIsEmpty(lines.size(), true);
+    std::vector<bool> colIsEmpty(lines[0].size(), true);
+    
+    std::vector<Galaxy> galaxies;
+
+    for(size_t i = 0; i < lines.size(); i++)
+    {
+        for(size_t j = 0; j < lines[0].size(); j++)
+        {
+            if(lines[i][j] == '#')
+            {
+                rowIsEmpty[i] = false;
+                colIsEmpty[j] = false;
+
+                Galaxy galaxy = {static_cast<int>(i), static_cast<int>(j)};
+                galaxies.push_back(galaxy);
+            }
+        }
+    }
+
+    long long ans = 0;
+    long long factor = 1000000;
+    for(size_t rIdx = 0; rIdx < galaxies.size(); rIdx++)
+    {
+        for(size_t cIdx = rIdx + 1; cIdx < galaxies.size(); cIdx++)
+        {
+            const auto& ga = galaxies[rIdx];
+            const auto& gb = galaxies[cIdx];
+
+            long long dist = get_dist(ga, gb, rowIsEmpty, colIsEmpty, factor);
+
+            ans += dist;
+        }
+    }
+
+    return std::to_string(ans);
 }
 
 int main()
