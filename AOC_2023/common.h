@@ -9,6 +9,7 @@
 #include <numeric>
 #include <set>
 #include <queue>
+#include <unordered_map>
 
 namespace tools
 {
