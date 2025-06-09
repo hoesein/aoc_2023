@@ -94,9 +94,54 @@ std::string part_one()
     return std::to_string(result);
 }
 
+std::string unfold_pattern(const std::string& pattern)
+{
+    std::string unfold;
+    for(size_t i = 0; i < 5; i++)
+    {
+        if(i != 0) unfold += "?";
+        unfold += pattern;
+    }
+    return unfold;
+}
+
+std::vector<int> unfold_group(const std::vector<int>& group)
+{
+    std::vector<int> unfold;
+    for(size_t i = 0; i < 5; i++)
+    {
+        unfold.insert(unfold.end(), group.begin(), group.end());
+    }   
+    return unfold;
+}
+
 std::string part_two()
 {
-    return "0";
+    std::vector<std::string> lines = read_file();
+    if(lines.empty())
+    {
+        std::cerr << "No data found." << std::endl;
+        return 0;
+    }
+    
+    long long result = 0;
+    std::vector<std::vector<int>> groups;
+    std::vector<std::string> patterns;
+    for(size_t i = 0; i < lines.size(); i++)
+    {
+        std::vector<std::string> split = tools::separator(lines[i], " ");
+        patterns.push_back(split[0]);
+        
+        std::vector<int> temp_groups;
+        for(int i: tools::remove<int>(split[1], ','))
+        {
+            temp_groups.push_back(i); 
+        }
+        result += count_arrange(unfold_pattern(split[0]), unfold_group(temp_groups), 0, 0, 0);
+        groups.push_back(temp_groups);
+        memo.clear();
+    }
+    return std::to_string(result);
 }
 
 int main()
