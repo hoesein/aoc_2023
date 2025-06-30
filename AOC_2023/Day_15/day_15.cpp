@@ -72,6 +72,50 @@ struct Lens
 {
     std::string label;
     int focal_length;
+    Lens(const std::string &_label, int _focal) : label(_label), focal_length(_focal) {}
+};
+
+struct Box
+{
+    std::vector<Lens> lenses;
+
+    void add_or_update(const std::string &_label, int _focal)
+    {
+        auto it = std::find_if(lenses.begin(), lenses.end(),
+                               [&](const Lens &lens)
+                               { return lens.label == _label; });
+
+        if (it != lenses.end())
+        {
+            it->focal_length = _focal; // update
+        }
+        else
+        {
+            lenses.emplace_back(_label, _focal);
+        }
+    }
+
+    void remove(const std::string &_label)
+    {
+        auto it = std::remove_if(lenses.begin(), lenses.end(),
+                                 [&](const Lens &lens)
+                                 { return lens.label == _label; });
+
+        if (it != lenses.end())
+        {
+            lenses.erase(it, lenses.end());
+        }
+    }
+
+    int lens_power(int box_number) const
+    {
+        int result = 0;
+        for (size_t slot = 0; slot < lenses.size(); ++slot)
+        {
+            result += (box_number + 1) * (slot + 1) * lenses[slot].focal_length;
+        }
+        return result;
+    }
 };
 
 std::string part_two()
@@ -90,7 +134,7 @@ std::string part_two()
         separated_lines.insert(separated_lines.end(), separated.begin(), separated.end());
     }
 
-    std::vector<std::vector<Lens>> boxes(256);
+    std::vector<Box> boxes(256);
     for (const auto &separated_line : separated_lines)
     {
         std::string word = separated_line;
@@ -106,23 +150,25 @@ std::string part_two()
             int focal_length = std::stoi(word.substr(pos + 1));
             int box_index = HASH(label);
 
-            // if already in box, update lens
-            bool found = false;
-            for (auto &lens : boxes[box_index])
-            {
-                if (lens.label == label)
-                {
-                    lens.focal_length = focal_length;
-                    found = true;
-                    break;
-                }
-            }
+            boxes[box_index].add_or_update(label, focal_length);
 
-            // add as new lens to box
-            if (!found)
-            {
-                boxes[box_index].push_back({label, focal_length});
-            }
+            // // if already in box, update lens
+            // bool found = false;
+            // for (auto &lens : boxes[box_index])
+            // {
+            //     if (lens.label == label)
+            //     {
+            //         lens.focal_length = focal_length;
+            //         found = true;
+            //         break;
+            //     }
+            // }
+
+            // // add as new lens to box
+            // if (!found)
+            // {
+            //     boxes[box_index].push_back({label, focal_length});
+            // }
         }
         else if (word.find("-") != std::string::npos)
         {
@@ -131,25 +177,28 @@ std::string part_two()
             std::string label = word.substr(0, pos);
             int box_index = HASH(label);
 
-            boxes[box_index].erase(
-                std::remove_if(boxes[box_index].begin(), boxes[box_index].end(),
-                               [&label](const Lens &lens)
-                               { return lens.label == label; }),
-                boxes[box_index].end());
+            boxes[box_index].remove(label);
+
+            // boxes[box_index].erase(
+            //     std::remove_if(boxes[box_index].begin(), boxes[box_index].end(),
+            //                    [&label](const Lens &lens)
+            //                    { return lens.label == label; }),
+            //     boxes[box_index].end());
         }
     }
 
     int result = 0;
     for (int box_num = 0; box_num < boxes.size(); box_num++)
     {
-        for (int slot = 0; slot < boxes[box_num].size(); slot++)
-        {
-            result += (box_num + 1) * (slot + 1) * boxes[box_num][slot].focal_length;
-            std::cout << "Box " << box_num + 1 << ", Slot " << slot << ": "
-                      << boxes[box_num][slot].label << " (Focal Length: "
-                      << boxes[box_num][slot].focal_length << ") -> Result: "
-                      << result << std::endl;
-        }
+        result += boxes[box_num].lens_power(box_num);
+        // for (int slot = 0; slot < boxes[box_num].size(); slot++)
+        // {
+        //     result += (box_num + 1) * (slot + 1) * boxes[box_num][slot].focal_length;
+        //     std::cout << "Box " << box_num + 1 << ", Slot " << slot << ": "
+        //               << boxes[box_num][slot].label << " (Focal Length: "
+        //               << boxes[box_num][slot].focal_length << ") -> Result: "
+        //               << result << std::endl;
+        // }
     }
 
     return std::to_string(result);
