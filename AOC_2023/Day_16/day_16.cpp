@@ -1,10 +1,11 @@
+#include <future>
 #include "../common.h"
 
 // Breadth-First Search (BFS) implementation to solve the problem of energizing beams in a grid with mirrors.
 
 std::vector<std::string> read_file()
 {
-    std::ifstream input_file("D:\\Aung Hein Soe\\Danger\\C++\\AOC_2023\\AOC_2023\\Day_16\\input.txt");
+    std::ifstream input_file("test.txt");
     if (!input_file.is_open())
     {
         std::cerr << "Error opening file\n";
@@ -58,22 +59,15 @@ Direction reflect(Direction current, char mirror)
     }
 }
 
-std::string part_one()
+int simulate_beam(const std::vector<std::string>& lines, Beam initial_beam)
 {
-    std::vector<std::string> lines = read_file();
-    if(lines.empty())
-    {
-        std::cerr << "No data found." << std::endl;
-        return 0;
-    }
-
     int rows = lines.size();
     int cols = lines[0].size();
 
     std::vector<std::vector<bool>> energized(rows, std::vector<bool>(cols, false));
     std::set<Beam> visited;
     std::queue<Beam> queue;
-    queue.push(Beam(0, 0, RIGHT));
+    queue.push(initial_beam);
 
     while (!queue.empty())
     {
@@ -138,15 +132,48 @@ std::string part_one()
             queue.push(new_beam);   // add new beam to the queue
         }
     }
-    
-    int total = 0;
-    for(const auto& energize: energized)
+
+    // return std::count_if(energized.begin(), energized.end(), [](const std::vector<bool>& row){
+    //     return std::count(row.begin(), row.end(), true);
+    // });
+    int count = 0;
+    for(const auto& eng: energized)
     {
-        total += std::count_if(energize.begin(), energize.end(),
-                               [](bool e) { return e; });
+        count += std::count_if(eng.begin(), eng.end(), [](bool e)
+                            { return e; });
+    }
+    return count;
+}
+
+std::string part_one()
+{
+    std::vector<std::string> lines = read_file();
+    if(lines.empty())
+    {
+        std::cerr << "No data found." << std::endl;
+        return 0;
     }
     
+    int total = simulate_beam(lines, Beam(0, 0, RIGHT));
+    
     return std::to_string(total);
+}
+
+std::vector<Beam> generate_start(int rows, int cols)
+{
+    std::vector<Beam> inital;
+    for(int col = 0; col < cols; ++col)
+    {
+        inital.push_back({0, col, DOWN});
+        inital.push_back({rows - 1, col, UP});
+    }
+    
+    for(int row = 0; row < rows; ++row)
+    {
+        inital.push_back({row, 0, RIGHT});
+        inital.push_back({row, cols - 1, LEFT});
+    }
+    return inital;
 }
 
 std::string part_two()
@@ -157,7 +184,19 @@ std::string part_two()
         std::cerr << "No data found." << std::endl;
         return 0;
     }
-    return "0";
+
+    auto multiple_beams = generate_start(lines.size(), lines[0].size());
+    std::vector<std::future<int>> futures;
+    for(const auto& beam: multiple_beams)
+    {
+        futures.push_back(std::async(std::launch::async, simulate_beam, std::cref(lines), beam));
+    }
+    int total = 0;
+    for(auto& fut : futures)
+    {
+        total = std::max(total, fut.get());
+    }
+    return std::to_string(total);
 }
 
 int main()
