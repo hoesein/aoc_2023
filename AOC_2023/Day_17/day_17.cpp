@@ -21,16 +21,22 @@ std::vector<std::string> read_file()
     return lines;
 }
 
-enum Direction { UP, DOWN, LEFT, RIGHT };
+enum Direction
+{
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT
+};
 
 struct State
 {
     int row, col;
     Direction dir;
-    int steps_in_same_direction;
+    int stpes_count;
     int heat_loss;
 
-    bool operator>(const State& other) const
+    bool operator>(const State &other) const
     {
         return heat_loss > other.heat_loss;
     }
@@ -39,17 +45,17 @@ struct State
 std::string part_one()
 {
     std::vector<std::string> lines = read_file();
-    if(lines.empty())
+    if (lines.empty())
     {
         std::cerr << "No data found." << std::endl;
         return 0;
     }
-    
+
     std::vector<std::vector<int>> grid;
     for (const auto line : lines)
     {
         std::vector<int> row;
-        for(const auto ch: line)
+        for (const auto ch : line)
         {
             row.push_back(ch - '0');
         }
@@ -60,21 +66,21 @@ std::string part_one()
     int num_cols = grid[0].size();
 
     std::priority_queue<State, std::vector<State>, std::greater<State>> pq;
-    
+
     // Key: tuple<row, col, direction, steps_in_same_direction>
     std::map<std::tuple<int, int, Direction, int>, int> min_heat;
     pq.push({0, 0, RIGHT, 0, 0});
     pq.push({0, 0, DOWN, 0, 0});
-    
+
     // Dijkstra's algorithm main loop
-    while(!pq.empty())
+    while (!pq.empty())
     {
         State current = pq.top();
         pq.pop();
         int row = current.row;
         int col = current.col;
         Direction dir = current.dir;
-        int steps = current.steps_in_same_direction;
+        int steps = current.stpes_count;
         int heat_loss = current.heat_loss;
 
         // If we reach the bottom-right corner, return the heat loss
@@ -133,7 +139,7 @@ std::string part_one()
 std::string part_two()
 {
     std::vector<std::string> lines = read_file();
-    if(lines.empty())
+    if (lines.empty())
     {
         std::cerr << "No data found." << std::endl;
         return 0;
@@ -143,7 +149,7 @@ std::string part_two()
     for (const auto line : lines)
     {
         std::vector<int> row;
-        for(const auto ch: line)
+        for (const auto ch : line)
         {
             row.push_back(ch - '0');
         }
@@ -154,21 +160,21 @@ std::string part_two()
     int num_cols = grid[0].size();
 
     std::priority_queue<State, std::vector<State>, std::greater<State>> pq;
-    
+
     // Key: tuple<row, col, direction, steps_in_same_direction>
     std::map<std::tuple<int, int, Direction, int>, int> min_heat;
     pq.push({0, 0, RIGHT, 0, 0});
     pq.push({0, 0, DOWN, 0, 0});
-    
+
     // Dijkstra's algorithm main loop
-    while(!pq.empty())
+    while (!pq.empty())
     {
         State current = pq.top();
         pq.pop();
         int row = current.row;
         int col = current.col;
         Direction dir = current.dir;
-        int steps = current.steps_in_same_direction;
+        int steps = current.stpes_count;
         int heat_loss = current.heat_loss;
 
         // If we reach the bottom-right corner, return the heat loss
@@ -201,25 +207,25 @@ std::string part_two()
             }
 
             int new_steps = (new_dir == dir) ? steps + 1 : 1;
-            if(new_steps > 10)
+            if (new_steps > 10)
                 continue;
 
             if (new_dir != dir && steps < 4)
             {
-               continue;
+                continue;
             }
-            
+
             int new_heat_loss = heat_loss + grid[new_row][new_col];
-            
+
             // Ensure not to move backward
             if ((dir == UP && new_dir == DOWN) ||
-            (dir == DOWN && new_dir == UP) ||
-            (dir == LEFT && new_dir == RIGHT) ||
-            (dir == RIGHT && new_dir == LEFT))
+                (dir == DOWN && new_dir == UP) ||
+                (dir == LEFT && new_dir == RIGHT) ||
+                (dir == RIGHT && new_dir == LEFT))
             {
                 continue;
             }
-            
+
             pq.push({new_row, new_col, new_dir, new_steps, new_heat_loss});
         }
     }
@@ -229,21 +235,21 @@ std::string part_two()
 int main()
 {
     using std::chrono::duration;
-	using std::chrono::duration_cast;
-	using std::chrono::high_resolution_clock;
-	using std::chrono::milliseconds;
+    using std::chrono::duration_cast;
+    using std::chrono::high_resolution_clock;
+    using std::chrono::milliseconds;
 
-	auto start = high_resolution_clock::now();
+    auto start = high_resolution_clock::now();
 
-	std::string p1 = part_one();
-	std::string p2 = part_two();
+    std::string p1 = part_one();
+    std::string p2 = part_two();
 
-	std::cout << "Part One: " << p1 << std::endl;
-	std::cout << "Part Two: " << p2 << std::endl;
+    std::cout << "Part One: " << p1 << std::endl;
+    std::cout << "Part Two: " << p2 << std::endl;
 
-	auto stop = high_resolution_clock::now();
-	auto dura = duration_cast<milliseconds>(stop - start);
-	std::cout << "Execution Time: " << dura.count() << " ms." << std::endl;
+    auto stop = high_resolution_clock::now();
+    auto dura = duration_cast<milliseconds>(stop - start);
+    std::cout << "Execution Time: " << dura.count() << " ms." << std::endl;
 
-	return 0;
+    return 0;
 }
